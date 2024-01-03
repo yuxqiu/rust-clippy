@@ -1,0 +1,67 @@
+error: called `filter(<f>).is_some()` on an `Option` value
+  --> $DIR/option_filter_is_some.rs:13:17
+   |
+LL |       let _ = opt.filter(|x| *x > 1)
+   |  _________________^
+LL | |         // Should lint even though this call is on a separate line.
+LL | |         .is_some();
+   | |__________________^
+   |
+   = note: `-D clippy::option-filter-is-some` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::option_filter_is_some)]`
+help: use `is_some_and(<f>)` instead
+   |
+LL -     let _ = opt.filter(|x| *x > 1)
+LL +     let _ = opt.is_some_and(|x| x > 1);
+   |
+
+error: called `filter(<f>).is_some()` on an `Option` value
+  --> $DIR/option_filter_is_some.rs:17:17
+   |
+LL |       let _ = opt.filter(|x| {
+   |  _________________^
+LL | |         *x > 1
+LL | |     }
+LL | |     ).is_some();
+   | |_______________^
+   |
+help: use `is_some_and(<f>)` instead
+   |
+LL ~     let _ = opt.is_some_and(|x| {
+LL ~         x > 1
+LL |     }
+LL ~     );
+   |
+
+error: called `filter(<f>).is_some()` on an `Option` value
+  --> $DIR/option_filter_is_some.rs:23:17
+   |
+LL |     let _ = opt.filter(|_| y > 1).is_some();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use: `is_some_and(|_| y > 1)`
+
+error: called `filter(<f>).is_some()` on an `Option` value
+  --> $DIR/option_filter_is_some.rs:25:17
+   |
+LL |     let _ = opt.filter(|x| x.eq(&5)).is_some();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `is_some_and(<f>)` instead
+   |
+LL -     let _ = opt.filter(|x| x.eq(&5)).is_some();
+LL +     let _ = opt.is_some_and(|x| (&x).eq(&5));
+   |
+
+error: called `filter(<f>).is_some()` on an `Option` value
+  --> $DIR/option_filter_is_some.rs:27:17
+   |
+LL |     let _ = opt.filter(|&x| x > 1).is_some();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `is_some_and(<f>)` instead
+   |
+LL -     let _ = opt.filter(|&x| x > 1).is_some();
+LL +     let _ = opt.is_some_and(|x| x > 1);
+   |
+
+error: aborting due to 5 previous errors
+

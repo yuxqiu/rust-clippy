@@ -72,6 +72,7 @@ mod obfuscated_if_else;
 mod ok_expect;
 mod open_options;
 mod option_as_ref_deref;
+mod option_filter_is_some;
 mod option_map_or_err_ok;
 mod option_map_or_none;
 mod option_map_unwrap_or;
@@ -3887,6 +3888,28 @@ declare_clippy_lint! {
     "splitting a trimmed string at hard-coded newlines"
 }
 
+declare_clippy_lint! {
+    /// Checks for usage of `option.filter(f).is_some()`.
+    ///
+    /// ### Why is this bad?
+    /// Readability. This can be written more concisely as `option.is_some_and(f)`.
+    ///
+    /// ### Example
+    /// ```no_run
+    /// # let option = Some(1);
+    /// option.filter(|a| *a > 10).is_some();
+    /// ```
+    /// Use instead:
+    /// ```no_run
+    /// # let option = Some(1);
+    /// option.is_some_and(|a| a > 10);
+    /// ```
+    #[clippy::version = "1.77.0"]
+    pub OPTION_FILTER_IS_SOME,
+    pedantic,
+    "using `option.filter(f).is_some()`, which is more succinctly expressed as `option.is_some_and(f)`"
+}
+
 pub struct Methods {
     avoid_breaking_exported_api: bool,
     msrv: Msrv,
@@ -4043,6 +4066,7 @@ impl_lint_pass!(Methods => [
     ITER_FILTER_IS_OK,
     MANUAL_IS_VARIANT_AND,
     STR_SPLIT_AT_NEWLINE,
+    OPTION_FILTER_IS_SOME,
 ]);
 
 /// Extracts a method call name, args, and `Span` of the method name.
@@ -4455,7 +4479,12 @@ impl Methods {
                 ("is_file", []) => filetype_is_file::check(cx, expr, recv),
                 ("is_digit", [radix]) => is_digit_ascii_radix::check(cx, expr, recv, radix, &self.msrv),
                 ("is_none", []) => check_is_some_is_none(cx, expr, recv, false),
-                ("is_some", []) => check_is_some_is_none(cx, expr, recv, true),
+                ("is_some", []) => {
+                    if let Some(("filter", f_recv, [arg], span, _)) = method_call(recv) {
+                        option_filter_is_some::check(cx, expr, f_recv, arg, span, recv.span, &self.msrv);
+                    }
+                    check_is_some_is_none(cx, expr, recv, true);
+                },
                 ("iter" | "iter_mut" | "into_iter", []) => {
                     iter_on_single_or_empty_collections::check(cx, expr, name, recv);
                 },

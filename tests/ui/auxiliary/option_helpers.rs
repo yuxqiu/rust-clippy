@@ -10,6 +10,13 @@ macro_rules! opt_map {
     };
 }
 
+#[macro_export]
+macro_rules! opt_filter {
+    ($opt:expr, $filter:expr) => {
+        ($opt).filter($filter)
+    };
+}
+
 /// Struct to generate false positive for Iterator-based lints
 #[derive(Copy, Clone)]
 pub struct IteratorFalsePositives {

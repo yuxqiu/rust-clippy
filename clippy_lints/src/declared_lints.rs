@@ -411,6 +411,7 @@ pub(crate) static LINTS: &[&crate::LintInfo] = &[
     crate::methods::OBFUSCATED_IF_ELSE_INFO,
     crate::methods::OK_EXPECT_INFO,
     crate::methods::OPTION_AS_REF_DEREF_INFO,
+    crate::methods::OPTION_FILTER_IS_SOME_INFO,
     crate::methods::OPTION_FILTER_MAP_INFO,
     crate::methods::OPTION_MAP_OR_ERR_OK_INFO,
     crate::methods::OPTION_MAP_OR_NONE_INFO,
